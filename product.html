@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Товар - Цветочное искушение</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Цветочное искушение</h1>
+        </div>
+        <div class="nav">
+            <a href="index.html">Главная</a>
+            <a href="catalog.html">Каталог</a>
+            <a href="contact.html">Контакты</a>
+            <div class="cart">
+                <a href="cart.html"><span class="emoji-cart">🛒</span></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="product-detail">
+        <img id="productImage" src="" alt="Продукт" />
+        <div class="product-info">
+            <h2 id="productName">Название товара</h2>
+            <p id="productPrice">Цена: 0 KZT</p>
+            <p id="productDescription">Описание товара</p>
+            <button id="addToCartBtn">Добавить в корзину</button>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Цветочное искушение</p>
+    </footer>
+
+    <script>
+        const RUB_TO_KZT = 6; // Конвертация рубля в тенге
+
+        const products = [
+            {id: 1, name: 'Букет роз', price: 1500, image: 'https://avatars.mds.yandex.net/i?id=4af2e8dd7ec60f7cc7cf06b6ed1d87eca295ade5-10415001-images-thumbs&n=13', description: 'Этот букет состоит из свежих роз, идеально подходящих для любого торжества.'},
+            {id: 2, name: 'Букет тюльпанов', price: 1200, image: 'https://avatars.mds.yandex.net/i?id=14f9d84a5c80bdb7bc2d14828eb9c4e5ee40408c-5232197-images-thumbs&n=13', description: 'Красивые тюльпаны для любого праздника.'}
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = parseInt(urlParams.get('id')); // Получаем id из URL
+
+        const product = products.find(item => item.id === productId); // Находим товар по ID
+
+        // Отображаем данные товара
+        document.getElementById('productName').innerText = product.name;
+        document.getElementById('productPrice').innerText = `Цена: ${product.price * RUB_TO_KZT} KZT`;
+        document.getElementById('productDescription').innerText = product.description;
+        document.getElementById('productImage').src = product.image;
+
+        // Добавляем товар в корзину
+        document.getElementById('addToCartBtn').addEventListener('click', function() {
+            addToCart(product);
+            window.location.href = 'cart.html'; // Перенаправление в корзину
+        });
+
+        function addToCart(product) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+    </script>
+</body>
+</html>

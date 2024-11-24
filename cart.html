@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина - Снежинка</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Снежинка</h1>
+        </div>
+        <div class="nav">
+            <a href="index.html">Главная</a>
+            <a href="catalog.html">Каталог</a>
+            <a href="contact.html">Контакты</a>
+            <div class="cart">
+                <a href="cart.html"><span class="emoji-cart">🛒</span></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="cart-items">
+        <h2>Ваша корзина</h2>
+        <div id="cartContent"></div>
+    </section>
+
+    <section class="order-form">
+        <h3>Оформление заказа</h3>
+        <form id="orderForm">
+            <label for="email">Ваш Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="note">Примечание к заказу:</label>
+            <textarea id="note" name="note" placeholder="Введите примечание..."></textarea>
+            <button type="submit">Оформить заказ</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>© 2024 Снежинка</p>
+    </footer>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const RUB_TO_KZT = 6; // Конвертация рубля в тенге
+
+        function displayCart() {
+            const cartContent = document.getElementById('cartContent');
+            if (cart.length === 0) {
+                cartContent.innerHTML = '<p>Корзина пуста.</p>';
+            } else {
+                cartContent.innerHTML = '';
+                cart.forEach((item, index) => {
+                    cartContent.innerHTML += `
+                        <div class="cart-item">
+                            <img src="${item.image}" alt="${item.name}" />
+                            <p>${item.name}</p>
+                            <p>Цена: ${item.price * RUB_TO_KZT} KZT</p>
+                            <p>${item.description}</p>
+                            <button onclick="removeFromCart(${index})">Удалить</button>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const note = document.getElementById('note').value;
+            sendOrder(email, note); // Отправка данных на почту
+        });
+
+        function sendOrder(email, note) {
+            const orderData = {
+                email: email,
+                note: note,
+                items: cart
+            };
+
+            fetch('submit_order.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Заказ успешно оформлен!');
+                localStorage.removeItem('cart'); // Очистить корзину
+                window.location.href = 'index.html'; // Перенаправление на главную
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при отправке заказа.');
+            });
+        }
+
+        window.onload = displayCart;
+    </script>
+</body>
+</html>
