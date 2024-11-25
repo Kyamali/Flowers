@@ -104,6 +104,59 @@
             });
         }
 
+        // Функция для отправки данных на сервер
+async function sendOrderData() {
+    // Получаем данные из формы
+    const email = document.querySelector('#email').value;
+    const note = document.querySelector('#note').value;
+    const items = [
+        { name: 'Цветок 1', price: 1000 }, // Пример товара
+        { name: 'Цветок 2', price: 1500 }  // Пример товара
+    ];
+
+    // Проверка на пустые товары
+    if (items.length === 0) {
+        alert('Нет товаров в заказе.');
+        return;
+    }
+
+    // Подготовка данных для отправки
+    const data = {
+        email: email,
+        note: note,
+        items: items
+    };
+
+    // Отправка данных на сервер через fetch
+    try {
+        const response = await fetch('/order', { // Путь к серверу, обработка на сервере
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            alert('Заказ успешно отправлен!');
+        } else {
+            alert(`Ошибка: ${result.message}`);
+        }
+    } catch (error) {
+        alert('Ошибка отправки данных на сервер.');
+        console.error('Error:', error);
+    }
+}
+
+// Пример вызова функции при отправке формы
+document.querySelector('#orderForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Останавливаем стандартную отправку формы
+    sendOrderData();
+});
+
+
         window.onload = displayCart;
     </script>
 </body>
