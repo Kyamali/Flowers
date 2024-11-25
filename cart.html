@@ -43,121 +43,86 @@
 
     <script>
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const RUB_TO_KZT = 6; // Конвертация рубля в тенге
+const RUB_TO_KZT = 6; // Конвертация рубля в тенге
 
-        function displayCart() {
-            const cartContent = document.getElementById('cartContent');
-            if (cart.length === 0) {
-                cartContent.innerHTML = '<p>Корзина пуста.</p>';
-            } else {
-                cartContent.innerHTML = '';
-                cart.forEach((item, index) => {
-                    cartContent.innerHTML += `
-                        <div class="cart-item">
-                            <img src="${item.image}" alt="${item.name}" />
-                            <p>${item.name}</p>
-                            <p>Цена: ${item.price * RUB_TO_KZT} KZT</p>
-                            <p>${item.description}</p>
-                            <button onclick="removeFromCart(${index})">Удалить</button>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            displayCart();
-        }
-
-        document.getElementById('orderForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            const note = document.getElementById('note').value;
-            sendOrder(email, note); // Отправка данных на почту
+// Функция отображения корзины
+function displayCart() {
+    const cartContent = document.getElementById('cartContent');
+    if (cart.length === 0) {
+        cartContent.innerHTML = '<p>Корзина пуста.</p>';
+    } else {
+        cartContent.innerHTML = '';
+        cart.forEach((item, index) => {
+            cartContent.innerHTML += `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}" />
+                    <p>${item.name}</p>
+                    <p>Цена: ${item.price * RUB_TO_KZT} KZT</p>
+                    <p>${item.description}</p>
+                    <button onclick="removeFromCart(${index})">Удалить</button>
+                </div>
+            `;
         });
-
-        function sendOrder(email, note) {
-            const orderData = {
-                email: email,
-                note: note,
-                items: cart
-            };
-
-            fetch('submit_order.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData),
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Заказ успешно оформлен!');
-                localStorage.removeItem('cart'); // Очистить корзину
-                window.location.href = 'index.html'; // Перенаправление на главную
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Произошла ошибка при отправке заказа.');
-            });
-        }
-
-        // Функция для отправки данных на сервер
-async function sendOrderData() {
-    // Получаем данные из формы
-    const email = document.querySelector('#email').value;
-    const note = document.querySelector('#note').value;
-    const items = [
-        { name: 'Цветок 1', price: 1000 }, // Пример товара
-        { name: 'Цветок 2', price: 1500 }  // Пример товара
-    ];
-
-    // Проверка на пустые товары
-    if (items.length === 0) {
-        alert('Нет товаров в заказе.');
-        return;
-    }
-
-    // Подготовка данных для отправки
-    const data = {
-        email: email,
-        note: note,
-        items: items
-    };
-
-    // Отправка данных на сервер через fetch
-    try {
-        const response = await fetch('/order', { // Путь к серверу, обработка на сервере
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            alert('Заказ успешно отправлен!');
-        } else {
-            alert(`Ошибка: ${result.message}`);
-        }
-    } catch (error) {
-        alert('Ошибка отправки данных на сервер.');
-        console.error('Error:', error);
     }
 }
 
-// Пример вызова функции при отправке формы
-document.querySelector('#orderForm').addEventListener('submit', function(event) {
+// Функция удаления товара из корзины
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart)); // Сохраняем обновленную корзину
+    displayCart(); // Обновляем отображение корзины
+}
+
+// Форма отправки заказа
+document.getElementById('orderForm').addEventListener('submit', function(event) {
     event.preventDefault(); // Останавливаем стандартную отправку формы
-    sendOrderData();
+
+    const email = document.getElementById('email').value;
+    const note = document.getElementById('note').value;
+
+    // Проверка на пустую корзину
+    if (cart.length === 0) {
+        alert('Корзина пуста, добавьте товары в корзину.');
+        return;
+    }
+
+    sendOrder(email, note); // Отправка данных на сервер
 });
 
+// Функция отправки данных заказа
+function sendOrder(email, note) {
+    const orderData = {
+        email: email,
+        note: note,
+        items: cart
+    };
 
-        window.onload = displayCart;
+    fetch('submit_order.php', { // Замените на URL вашего сервера для обработки заказа
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData), // Отправка данных в формате JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Заказ успешно оформлен!');
+            localStorage.removeItem('cart'); // Очистить корзину после отправки заказа
+            window.location.href = 'index.html'; // Перенаправление на главную страницу
+        } else {
+            alert(`Ошибка: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при отправке заказа.');
+    });
+}
+
+// Загружаем корзину при загрузке страницы
+window.onload = displayCart;
+
     </script>
 </body>
 </html>
