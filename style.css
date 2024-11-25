@@ -112,7 +112,10 @@ header h1 {
 }
 
 .cart-item {
-    margin: 40px 0;
+    margin: 40px 100px;
+}
+.cart-item;hover {
+    trasform: rotate(30deg);
 }
 
 .cart-item img {
