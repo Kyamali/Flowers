@@ -97,28 +97,7 @@ function sendOrder(email, note) {
         items: cart
     };
 
-    fetch('tresh.js', { // Замените на URL вашего сервера для обработки заказа
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData), // Отправка данных в формате JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Заказ успешно оформлен!');
-            localStorage.removeItem('cart'); // Очистить корзину после отправки заказа
-            window.location.href = 'index.html'; // Перенаправление на главную страницу
-        } else {
-            alert(`Ошибка: ${data.message}`);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Произошла ошибка при отправке заказа.');
-    });
-}
+    
 
 // Загружаем корзину при загрузке страницы
 window.onload = displayCart;
